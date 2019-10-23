@@ -1,0 +1,35 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "botname": {
+          "type": "string"
+      },
+      "botendpoint": {
+          "type": "string"
+      },
+      "botmsaid": {
+          "type": "string"
+      }
+  },
+  "resources": [
+      {
+  "name": "[parameters('botname')]",
+  "type": "Microsoft.BotService/botServices",
+  "apiVersion": "2018-07-12",
+  "location": "global",
+  "tags": {},
+  "sku": {
+    "name": "S1"
+  },
+  "kind": "bot",
+  "properties": {
+    "displayName": "[parameters('botname')]",
+    "description": "",
+    "iconUrl": "",
+    "endpoint": "[parameters('botendpoint')]",
+    "msaAppId": "[parameters('botmsaid')]"
+  }
+}
+]
+}

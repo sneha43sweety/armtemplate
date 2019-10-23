@@ -1,0 +1,81 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "botname": {
+      "type": "string"
+    },
+    "botendpoint": {
+      "type": "string"
+    },
+    "botmsaid": {
+      "type": "string"
+      
+    }
+  },
+
+  "variables": {
+    "botnamevar": {
+      "name": "[parameters('botname')]"
+    },
+    "resourceId": "[resourceId('Microsoft.BotService/botServices', variables('botnamevar').name)]",
+    "apiVersion": "[providers('Microsoft.BotService', 'botServices').apiVersions[0]]",
+    "myAppInsightsInstanceName":"[concat(parameters('botname'),'appinsights')]"
+  },
+  "resources": [
+    {
+        "type": "microsoft.insights/components",
+        "apiVersion": "2015-05-01",
+        "name": "[variables('myAppInsightsInstanceName')]",
+        "location": "[resourceGroup().location]",
+        "kind": "web",
+        "properties": {
+                "Application_Type": "web",
+				"applicationId": "[parameters('appInsightsName')]"
+            }
+    },
+    {
+      "name": "[parameters('botname')]",
+      "type": "Microsoft.BotService/botServices",
+      "apiVersion": "2018-07-12",
+      "location": "global",
+      "tags": {},
+      "sku": {
+        "name": "S1"
+      },
+      "kind": "bot",
+      "properties": {
+        "displayName": "[parameters('botname')]",
+        "description": "",
+        "iconUrl": "",
+        "endpoint": "[parameters('botendpoint')]",
+        "msaAppId": "[parameters('botmsaid')]",
+        "enabledChannels": [
+          "webchat",
+          "directline"
+        ],
+        "configuredChannels": [
+          "webchat",
+          "directline"
+        ],
+        "developerAppInsightKey":"[reference(resourceId('Microsoft.Insights/components', variables('myAppInsightsInstanceName')), '2015-05-01').InstrumentationKey]",
+		"developerAppInsightsApplicationId":"[reference(resourceId('Microsoft.Insights/components', variables('myAppInsightsInstanceName')), '2015-05-01').ApplicationId]"
+      }
+
+    }
+    
+
+  ],
+  "outputs": {
+    "directLineSecret": {
+      "type": "object",
+      "value": "[listChannelWithKeys(concat(resourceId('Microsoft.BotService/botServices', parameters('botname')), '/channels/DirectLineChannel'), '2018-07-12')]"
+    },
+    "webChatSecret": {
+      "type": "object",
+      "value": "[listChannelWithKeys(concat(resourceId('Microsoft.BotService/botServices', parameters('botname')), '/channels/WebChatChannel'), '2018-07-12')]"
+    }
+  }
+
+
+}
